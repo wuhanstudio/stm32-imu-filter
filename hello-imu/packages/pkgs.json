@@ -1,0 +1,27 @@
+[
+ {
+  "path": "/packages/iot/WiFi/wlan_wiced", 
+  "ver": "v1.0.1", 
+  "name": "WLAN_WICED"
+ }, 
+ {
+  "path": "/packages/tools/EasyFlash", 
+  "ver": "v4.1.0", 
+  "name": "EASYFLASH"
+ }, 
+ {
+  "path": "/packages/system/fal", 
+  "ver": "v0.5.0", 
+  "name": "FAL"
+ }, 
+ {
+  "path": "/packages/peripherals/sensors/icm20608", 
+  "ver": "latest", 
+  "name": "ICM20608"
+ }, 
+ {
+  "path": "/packages/peripherals/stm32_sdio", 
+  "ver": "v1.0.2", 
+  "name": "STM32_SDIO"
+ }
+]
