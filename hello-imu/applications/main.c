@@ -51,7 +51,7 @@ int main(void)
         {
             if(icm20608_get_gyro(imu, &gyro_x, &gyro_y, &gyro_z) == RT_EOK)
             {
-//                rt_kprintf("Data: %d,%d,%d,%d,%d,%d\n", accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z);
+
                 gyrX = gyro_x / gSensitivity;
                 gyrY = gyro_y / gSensitivity;
                 gyrZ = gyro_z / gSensitivity;
