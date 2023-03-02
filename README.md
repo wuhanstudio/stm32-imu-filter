@@ -6,6 +6,8 @@ An IMU Complementary Filter using RT-Thread (STM32L4 + icm-20608 6 axis imu).
 $ python cube.py
 ```
 
+![](demo.gif)
+
 ## References
 
 - https://github.com/mattzzw/Arduino-mpu6050
