@@ -18,13 +18,15 @@
 /* defined the LED0 pin: PE7 */
 #define LED0_PIN    GET_PIN(E, 7)
 
+// global angle, gyro derived
 rt_int16_t accel_x, accel_y, accel_z;
 rt_int16_t gyro_x, gyro_y, gyro_z;
 
-// global angle, gyro derived
-double gSensitivity = 131; // for 500 deg/s, check data sheet
 double gx = 0, gy = 0, gz = 0;
 double gyrX = 0, gyrY = 0, gyrZ = 0;
+
+// For 250 deg/s, check data sheet
+double gSensitivity = 131;
 
 const rt_int32_t TIME_STEP_MS = 100;
 
@@ -51,7 +53,6 @@ int main(void)
         {
             if(icm20608_get_gyro(imu, &gyro_x, &gyro_y, &gyro_z) == RT_EOK)
             {
-
                 gyrX = gyro_x / gSensitivity;
                 gyrY = gyro_y / gSensitivity;
                 gyrZ = gyro_z / gSensitivity;
