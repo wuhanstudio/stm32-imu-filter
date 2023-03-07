@@ -136,9 +136,6 @@ if __name__ == '__main__':
     resize(1920, 1080)
     init()
 
-    frames = 0
-    ticks = pygame.time.get_ticks()
-
     while True:
         event = pygame.event.poll()
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -149,7 +146,5 @@ if __name__ == '__main__':
         draw()
 
         pygame.display.flip()
-        frames = frames+1
 
-    print ("fps:  %d" % ((frames*1000)/(pygame.time.get_ticks()-ticks)))
     ser.close()
