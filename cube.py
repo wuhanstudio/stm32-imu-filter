@@ -44,7 +44,7 @@ def draw():
     glLoadIdentity()
     glTranslatef(0,0.0,-7.0)
 
-    osd_text = "pitch: " + str("{0:.2f}".format(ay)) + ", roll: " + str("{0:.2f}".format(ax))
+    osd_text = "pitch: " + str("{0:.2f}".format(ay)) + ", roll: " + str("{0:.2f}".format(-ax))
 
     if yaw_mode:
         osd_line = osd_text + ", yaw: " + str("{0:.2f}".format(az))
@@ -60,8 +60,8 @@ def draw():
     else:
         glRotatef(0.0, 0.0, 1.0, 0.0)
 
-    glRotatef(-1*ay ,1.0,0.0,0.0)              # Pitch, rotate around x-axis
-    glRotatef(ax ,0.0,0.0,1.0)           # Roll,  rotate around z-axis
+    glRotatef(-1*ax, 1.0, 0.0, 0.0)        # Roll,  rotate around x-axis
+    glRotatef(ay, 0.0, 0.0, 1.0)           # Pitch, rotate around z-axis
 
     glBegin(GL_QUADS)	
     glColor3f(0.0,1.0,0.0)
@@ -120,8 +120,8 @@ def read_data():
     pitch = float(data[7])
     yaw = float(data[8])
 
-    ax = pitch
-    ay = roll
+    ax = roll
+    ay = pitch
     az = yaw
 
 if __name__ == '__main__':

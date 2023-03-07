@@ -64,8 +64,11 @@ int main(void)
                 gyrZ = gyro_z / gSensitivity;
 
                 // angles based on accelerometer
-                ay = atan2(accel_x, sqrt( pow(accel_y, 2) + pow(accel_z, 2))) * 180 / M_PI;
-                ax = atan2(accel_y, sqrt( pow(accel_x, 2) + pow(accel_z, 2))) * 180 / M_PI;
+                ax = atan2(accel_y, accel_z) * 180 / M_PI;                                      // roll
+                ay = atan2(-accel_x, sqrt( pow(accel_y, 2) + pow(accel_z, 2))) * 180 / M_PI;    // pitch
+
+                // This is incorrect, many tutorials make this mistake
+                // ax = atan2(accel_y, sqrt( pow(accel_x, 2) + pow(accel_z, 2))) * 180 / M_PI;    // roll
 
                 // angles based on gyro (deg/s)
                 gx = gx + gyrX * TIME_STEP_MS / 1000;
