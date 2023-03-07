@@ -28,6 +28,8 @@ double gyrX = 0, gyrY = 0, gyrZ = 0;
 // For 250 deg/s, check data sheet
 double gSensitivity = 131;
 
+double aSensitivity = 16384;
+
 const rt_int32_t TIME_STEP_MS = 100;
 
 int main(void)
@@ -53,13 +55,17 @@ int main(void)
         {
             if(icm20608_get_gyro(imu, &gyro_x, &gyro_y, &gyro_z) == RT_EOK)
             {
+                accel_x = accel_x / aSensitivity;
+                accel_y = accel_y / aSensitivity;
+                accel_z = accel_z / aSensitivity;
+
                 gyrX = gyro_x / gSensitivity;
                 gyrY = gyro_y / gSensitivity;
                 gyrZ = gyro_z / gSensitivity;
 
                 // angles based on accelerometer
-                ay = atan2(accel_x / 16384, sqrt( pow(accel_y / 16384, 2) + pow(accel_z / 16384, 2))) * 180 / M_PI;
-                ax = atan2(accel_y / 16384, sqrt( pow(accel_x / 16384, 2) + pow(accel_z / 16384, 2))) * 180 / M_PI;
+                ay = atan2(accel_x, sqrt( pow(accel_y, 2) + pow(accel_z, 2))) * 180 / M_PI;
+                ax = atan2(accel_y, sqrt( pow(accel_x, 2) + pow(accel_z, 2))) * 180 / M_PI;
 
                 // angles based on gyro (deg/s)
                 gx = gx + gyrX * TIME_STEP_MS / 1000;
