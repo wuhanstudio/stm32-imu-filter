@@ -11,34 +11,35 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <board.h>
+
 #include <math.h>
 #include <icm20608.h>
 #include <stdio.h>
 
-/* defined the LED0 pin: PE7 */
-#define LED0_PIN    GET_PIN(E, 7)
+// Sample Frequency
+const rt_int32_t TIME_STEP_MS = 100;
 
-// global angle, gyro derived
+// For 250 deg/s range, check the datasheet
+double gSensitivity = 131;
+
+// For 2g range, check the datasheet
+double aSensitivity = 16384;
+
+// Raw data from the IMU
 rt_int16_t accel_x, accel_y, accel_z;
 rt_int16_t gyro_x, gyro_y, gyro_z;
 
+// Predicted Orientation (Gyro)
 double gx = 0, gy = 0, gz = 0;
+
+// Predicted Orientation (Acc)
+double ax = 0, ay = 0;
+
+double accelX = 0, accelY = 0, accelZ = 0;
 double gyrX = 0, gyrY = 0, gyrZ = 0;
-
-// For 250 deg/s, check data sheet
-double gSensitivity = 131;
-
-double aSensitivity = 16384;
-
-const rt_int32_t TIME_STEP_MS = 100;
 
 int main(void)
 {
-    double ax, ay;
-
-    /* set LED0 pin mode to output */
-    rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
-
     icm20608_device_t imu = icm20608_init("i2c3");
     if(imu != RT_NULL)
     {
@@ -55,20 +56,20 @@ int main(void)
         {
             if(icm20608_get_gyro(imu, &gyro_x, &gyro_y, &gyro_z) == RT_EOK)
             {
-                accel_x = accel_x / aSensitivity;
-                accel_y = accel_y / aSensitivity;
-                accel_z = accel_z / aSensitivity;
+                accelX = accel_x / aSensitivity;
+                accelY = accel_y / aSensitivity;
+                accelZ = accel_z / aSensitivity;
 
                 gyrX = gyro_x / gSensitivity;
                 gyrY = gyro_y / gSensitivity;
                 gyrZ = gyro_z / gSensitivity;
 
                 // angles based on accelerometer
-                ax = atan2(accel_y, accel_z) * 180 / M_PI;                                      // roll
-                ay = atan2(-accel_x, sqrt( pow(accel_y, 2) + pow(accel_z, 2))) * 180 / M_PI;    // pitch
+                ax = atan2(accelY, accelZ) * 180 / M_PI;                                      // roll
+                ay = atan2(-accelX, sqrt( pow(accelY, 2) + pow(accelZ, 2))) * 180 / M_PI;    // pitch
 
                 // This is incorrect, many tutorials make this mistake
-                // ax = atan2(accel_y, sqrt( pow(accel_x, 2) + pow(accel_z, 2))) * 180 / M_PI;    // roll
+                // ax = atan2(accelY, sqrt( pow(accelX, 2) + pow(accelZ, 2))) * 180 / M_PI;    // roll
 
                 // angles based on gyro (deg/s)
                 gx = gx + gyrX * TIME_STEP_MS / 1000;
