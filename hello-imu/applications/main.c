@@ -16,8 +16,8 @@
 #include <icm20608.h>
 #include <stdio.h>
 
-// Sample Frequency
-const rt_int32_t TIME_STEP_MS = 100;
+// Sample Frequency 100 Hz
+const rt_int32_t TIME_STEP_MS = 10;
 
 // For 250 deg/s range, check the datasheet
 double gSensitivity = 131;
