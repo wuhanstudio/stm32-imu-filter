@@ -1,16 +1,31 @@
 #!/usr/bin/env python
 
 import serial
+import signal
+import threading
+
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
 import pygame
 from pygame.locals import *
 
-ser = serial.Serial('COM7', 115200, timeout=1)
+SERIAL_PORT = 'COM7'
+
+exit_event = threading.Event()
 
 ax = ay = az = 0.0
 yaw_mode = True
+
+GL_EXIT = False
+
+def init():
+    glShadeModel(GL_SMOOTH)
+    glClearColor(0.0, 0.0, 0.0, 0.0)
+    glClearDepth(1.0)
+    glEnable(GL_DEPTH_TEST)
+    glDepthFunc(GL_LEQUAL)
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
 
 def resize(width, height):
     if height==0:
@@ -21,14 +36,6 @@ def resize(width, height):
     gluPerspective(45, 1.0*width/height, 0.1, 100.0)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-
-def init():
-    glShadeModel(GL_SMOOTH)
-    glClearColor(0.0, 0.0, 0.0, 0.0)
-    glClearDepth(1.0)
-    glEnable(GL_DEPTH_TEST)
-    glDepthFunc(GL_LEQUAL)
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
 
 def drawText(position, textString):     
     font = pygame.font.SysFont ("Courier", 18, True)
@@ -100,31 +107,57 @@ def draw():
     glVertex3f( 1.0,-0.2, 1.0)		
     glVertex3f( 1.0,-0.2,-1.0)		
     glEnd()	
-         
-def read_data():
+
+def worker_serial():
     global ax, ay, az
-    ax = ay = az = 0.0
+    ser = serial.Serial(SERIAL_PORT, 115200, timeout=1)
 
-    line = ser.readline()
-    data = line.split(b" ")
+    # Complementary filter data
+    roll = pitch = yaw = 0.0
 
-    # ax = float(data[0])
-    # ay = float(data[1])
-    # az = float(data[2])
+    while True:
+        try:
+            line = ser.readline()
+            data = line.split(b" ")
 
-    # x = float(data[3])
-    # y = float(data[4])
-    # z = float(data[5])
+            # Raw data
 
-    roll = float(data[6])
-    pitch = float(data[7])
-    yaw = float(data[8])
+            # ax = float(data[0])
+            # ay = float(data[1])
+            # az = float(data[2])
 
-    ax = roll
-    ay = pitch
-    az = yaw
+            # x = float(data[3])
+            # y = float(data[4])
+            # z = float(data[5])
+
+            # Complementary filter data
+            roll = float(data[6])
+            pitch = float(data[7])
+            yaw = float(data[8])
+
+            # print("Acc: %f %f %f Gyr: %f %f %f Pos %f %f %f" % (ax, ay, az, x, y, z, roll, pitch, yaw))
+
+            ax = roll
+            ay = pitch
+            az = yaw
+
+        except Exception as e:
+            print(e)
+            pass
+
+        if exit_event.is_set() or GL_EXIT:
+            ser.close()
+            return
+
+def signal_handler(signum, frame):
+    exit_event.set()
 
 if __name__ == '__main__':
+
+    t1 = threading.Thread(target=worker_serial, daemon=True)
+    t1.start()
+   
+    signal.signal(signal.SIGINT, signal_handler)
 
     video_flags = OPENGL|DOUBLEBUF
 
@@ -136,15 +169,22 @@ if __name__ == '__main__':
     resize(1920, 1080)
     init()
 
-    while True:
-        event = pygame.event.poll()
-        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-            pygame.quit()  #* quit pygame properly
-            break      
+    try:
+        while True:
+            event = pygame.event.poll()
 
-        read_data()
-        draw()
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                # Quit pygame properly
+                pygame.quit()  
 
-        pygame.display.flip()
+                GL_EXIT = True
 
-    ser.close()
+                break      
+
+            draw()
+            pygame.display.flip()
+
+    except KeyboardInterrupt:
+        t1.join()
+
+    print('Exiting main thread.')

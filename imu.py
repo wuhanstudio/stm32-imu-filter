@@ -51,6 +51,7 @@ def worker_serial():
                 gyr.get()
             if pos.qsize() > 50:
                 pos.get()
+
         except Exception as e:
             print(e)
             pass
